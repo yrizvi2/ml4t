@@ -72,7 +72,7 @@ def test_code():
     win_prob = 18 / 38  # set appropriately to the probability of a win
     num_spins = 1000  # Number of spins per episode
 
-    # Experiment 1: 10 Episodes
+    # Experiment 1: Figure 1 10 Episodes
     num_episodes = 10
     winnings = np.zeros((num_episodes, num_spins + 1))
 
@@ -110,7 +110,7 @@ def test_code():
     plt.savefig("images/figure1_10_episodes.png")
     plt.close()
 
-    # Experiment 2: 1000 Episodes
+    # Figure 2: 1000 Episodes
     num_episodes = 1000
     winnings = np.zeros((num_episodes, num_spins + 1))
 
@@ -138,7 +138,7 @@ def test_code():
     mean_winnings = np.mean(winnings, axis=0)
     std_winnings = np.std(winnings, axis=0)
 
-    # Plot mean and standard deviation
+    # Figure 2 - Plot mean and standard deviation
     plt.figure(figsize=(10, 6))
     plt.plot(mean_winnings, label='Mean Winnings')
     plt.plot(mean_winnings + std_winnings, label='Mean + Std Dev', linestyle='--')
@@ -153,10 +153,10 @@ def test_code():
     plt.savefig("images/figure2_mean_stdev.png")
     plt.close()
 
-    # Calculate median winnings for each spin
+    # Figure 3- Calculate median winnings for each spin
     median_winnings = np.median(winnings, axis=0)
 
-    # Plot median and standard deviation
+    # Figure 3- Plot median and standard deviation
     plt.figure(figsize=(10, 6))
     plt.plot(median_winnings, label='Median Winnings')
     plt.plot(median_winnings + std_winnings, label='Median + Std Dev', linestyle='--')
@@ -171,7 +171,75 @@ def test_code():
     plt.savefig("images/figure3_median_stdev.png")
     plt.close()
 
-    print("Experiments completed. Plots saved in the 'images' directory.")
+    print("Experiment 1 completed. Plots saved in the 'images' directory.")
+
+    # Experiment 2: 1000 Episodes with Realistic Bankroll
+    bankroll_limit = 256  # Realistic bankroll limit
+    num_episodes = 1000
+    winnings = np.zeros((num_episodes, num_spins + 1))
+
+    for episode in range(num_episodes):
+        bet_amount = 1
+        episode_winnings = 0
+
+        for spin in range(1, num_spins + 1):
+            if bet_amount > bankroll_limit + episode_winnings:
+                # If bet amount exceeds available funds, bet only what is left
+                bet_amount = bankroll_limit + episode_winnings
+
+            won = get_spin_result(win_prob)
+            if won:
+                episode_winnings += bet_amount
+                bet_amount = 1  # Reset bet on win
+            else:
+                episode_winnings -= bet_amount
+                bet_amount *= 2  # Double bet on loss
+
+            winnings[episode, spin] = episode_winnings
+
+            # Stop betting if $80 winnings are reached or bankroll is exhausted
+            if episode_winnings >= 80 or episode_winnings <= -bankroll_limit:
+                winnings[episode, spin:] = episode_winnings
+                break
+
+    # Calculate mean and standard deviation
+    mean_winnings = np.mean(winnings, axis=0)
+    std_winnings = np.std(winnings, axis=0)
+
+    # Figure 4: Mean and Std Dev
+    plt.figure(figsize=(10, 6))
+    plt.plot(mean_winnings, label='Mean Winnings')
+    plt.plot(mean_winnings + std_winnings, label='Mean + Std Dev', linestyle='--')
+    plt.plot(mean_winnings - std_winnings, label='Mean - Std Dev', linestyle='--')
+    plt.title('Figure 4: Mean and Std Dev of Winnings (1000 Episodes, Realistic Bankroll)')
+    plt.xlabel('Spin Number')
+    plt.ylabel('Winnings ($)')
+    plt.ylim(-256, 100)
+    plt.xlim(0, 300)
+    plt.legend(loc='upper left', fontsize=8)
+    plt.grid(True)
+    plt.savefig("images/figure4_mean_stdev_realistic.png")
+    plt.close()
+
+    # Calculate median winnings for each spin
+    median_winnings = np.median(winnings, axis=0)
+
+    # Figure 5: Median and Std Dev
+    plt.figure(figsize=(10, 6))
+    plt.plot(median_winnings, label='Median Winnings')
+    plt.plot(median_winnings + std_winnings, label='Median + Std Dev', linestyle='--')
+    plt.plot(median_winnings - std_winnings, label='Median - Std Dev', linestyle='--')
+    plt.title('Figure 5: Median and Std Dev of Winnings (1000 Episodes, Realistic Bankroll)')
+    plt.xlabel('Spin Number')
+    plt.ylabel('Winnings ($)')
+    plt.ylim(-256, 100)
+    plt.xlim(0, 300)
+    plt.legend(loc='upper left', fontsize=8)
+    plt.grid(True)
+    plt.savefig("images/figure5_median_stdev_realistic.png")
+    plt.close()
+
+    print("Experiment 2 completed. Figures 4 and 5 saved in the 'images' directory.")
 
 
 if __name__ == "__main__":  		  	   		 	 	 			  		 			     			  	 
